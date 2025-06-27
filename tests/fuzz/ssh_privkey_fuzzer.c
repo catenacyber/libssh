@@ -33,7 +33,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     input = bin_to_base64(data, size);
     if (input == NULL) {
-        return 1;
+        return 0;
     }
 
     ssh_init();

@@ -125,6 +125,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     bool no = false;
     const char *env = NULL;
     int rc;
+    ssh_event event = NULL;
 
     /* Our struct holding information about the session. */
     struct session_data_struct sdata = {
@@ -163,10 +164,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     /* Set up the libssh server */
     ssh_bind sshbind = ssh_bind_new();
-    assert(sshbind != NULL);
+    if (sshbind == NULL){
+        return -1;
+    }
 
     ssh_session session = ssh_new();
-    assert(session != NULL);
+    if(session == NULL) {
+        return -1;
+    }
 
 
     env = getenv("LIBSSH_VERBOSITY");
@@ -179,17 +184,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     rc = ssh_bind_options_set(sshbind,
                               SSH_BIND_OPTIONS_HOSTKEY,
                               "/tmp/libssh_fuzzer_private_key");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_CIPHERS_C_S, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_CIPHERS_S_C, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HMAC_C_S, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HMAC_S_C, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_PROCESS_CONFIG, &no);
-    assert(rc == 0);
+    if (rc != 0) goto out;
 
     ssh_set_auth_methods(session, SSH_AUTH_METHOD_NONE);
 
@@ -197,10 +202,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     ssh_set_server_callbacks(session, &server_cb);
 
     rc = ssh_bind_accept_fd(sshbind, session, socket_fds[0]);
-    assert(rc == SSH_OK);
+    if(rc != SSH_OK) goto out;
 
-    ssh_event event = ssh_event_new();
-    assert(event != NULL);
+    event = ssh_event_new();
+    if (event == NULL) goto out;
 
     if (ssh_handle_key_exchange(session) == SSH_OK) {
         ssh_event_add_session(event, session);
@@ -219,6 +224,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         }
     }
 
+out:
     ssh_event_free(event);
 
     close(socket_fds[0]);

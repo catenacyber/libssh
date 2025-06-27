@@ -116,30 +116,32 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     ssh_init();
 
     session = ssh_new();
-    assert(session != NULL);
+    if(session == NULL) {
+        return -1;
+    }
 
     env = getenv("LIBSSH_VERBOSITY");
     if (env != NULL && strlen(env) > 0) {
         ssh_options_set(session, SSH_OPTIONS_LOG_VERBOSITY_STR, env);
     }
     rc = ssh_options_set(session, SSH_OPTIONS_FD, &socket_fds[0]);
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_HOST, "127.0.0.1");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_USER, "alice");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_CIPHERS_C_S, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_CIPHERS_S_C, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_HMAC_C_S, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_HMAC_S_C, "none");
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_PROCESS_CONFIG, &no);
-    assert(rc == 0);
+    if (rc != 0) goto out;
     rc = ssh_options_set(session, SSH_OPTIONS_TIMEOUT, &timeout);
-    assert(rc == 0);
+    if (rc != 0) goto out;
 
     ssh_callbacks_init(&cb);
     ssh_set_callbacks(session, &cb);

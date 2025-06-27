@@ -1985,10 +1985,10 @@ int ssh_options_apply(ssh_session session)
              * it with ssh expansion of ssh escape characters.
              */
             tmp = ssh_path_expand_escape(session, id);
+            free(id);
             if (tmp == NULL) {
                 return -1;
             }
-            free(id);
         }
 
         /* use append to keep the order at first call and use prepend

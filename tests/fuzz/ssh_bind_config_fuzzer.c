@@ -39,7 +39,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     ssh_init();
 
     bind = ssh_bind_new();
-    assert(bind != NULL);
+    if(bind == NULL) {
+        free(input);
+        return -1;
+    }
 
     ssh_bind_config_parse_string(bind, input);
 

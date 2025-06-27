@@ -299,7 +299,10 @@ static int ssh_known_hosts_read_entries(const char *match,
             }
         }
         if (entry != NULL) {
-            ssh_list_append(*entries, entry);
+            if (ssh_list_append(*entries, entry) == SSH_ERROR) {
+                ssh_knownhosts_entry_free(entry);
+                entry = NULL;
+            }
         }
     }
 
