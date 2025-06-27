@@ -1569,6 +1569,7 @@ int ssh_make_sessionid(ssh_session session)
     ssh_log_hexdump("hash buffer", ssh_buffer_get(buf), ssh_buffer_get_len(buf));
 #endif
 
+    rc = SSH_ERROR;
     switch (session->next_crypto->kex_type) {
     case SSH_KEX_DH_GROUP1_SHA1:
     case SSH_KEX_DH_GROUP14_SHA1:
@@ -1580,7 +1581,6 @@ int ssh_make_sessionid(ssh_session session)
         session->next_crypto->secret_hash = malloc(session->next_crypto->digest_len);
         if (session->next_crypto->secret_hash == NULL) {
             ssh_set_error_oom(session);
-            rc = SSH_ERROR;
             goto error;
         }
         sha1(ssh_buffer_get(buf), ssh_buffer_get_len(buf),
