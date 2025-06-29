@@ -150,7 +150,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     /* Write SSH RSA host key to disk */
     rc = write_rsa_hostkey("/tmp/libssh_fuzzer_private_key");
-    assert(rc == 0);
+    if (rc != 0) return -1;
 
     /* Set up the socket to send data */
     rc = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
