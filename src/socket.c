@@ -675,7 +675,7 @@ int ssh_socket_write(ssh_socket s, const void *buffer, uint32_t len)
             ssh_set_error_oom(s->session);
             return SSH_ERROR;
         }
-        ssh_socket_nonblocking_flush(s);
+        return ssh_socket_nonblocking_flush(s);
     }
 
     return SSH_OK;
