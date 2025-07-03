@@ -117,7 +117,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     session = ssh_new();
     if(session == NULL) {
-        return -1;
+        goto out;
     }
 
     env = getenv("LIBSSH_VERBOSITY");
